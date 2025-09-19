@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import Sidebar from './components/Sidebar'
-import Sidebar2 from './components/AssignedSurveys'
 import TopBar from './components/TopBar'
-import SurveyPersonnel from './components/SurveyPersonnel'
-import AssignedSurveys from './components/AssignedSurveys'
-import Surveys from './components/Surveys'
+import SurveyPersonnel from './components/CreateUsers'
+import Surveys from './components/CreateQuestion'
+import CreateSurvey from './components/CreateSurveys'
 
 
 function App() {
@@ -12,12 +11,12 @@ function App() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'personnel':
+      case 'Users':
         return <SurveyPersonnel />
-      case 'assigned':
-        return <AssignedSurveys />
-      case 'surveys':
+      case 'Questions':
         return <Surveys />
+      case 'surveys':
+        return <CreateSurvey />
       default:
         return <SurveyPersonnel />
     }
@@ -30,7 +29,6 @@ function App() {
       <main className="lg:ml-64 pt-16 sm:pt-18 md:pt-20 p-2 sm:p-4 md:p-6">
         {renderContent()}
       </main>
-      {/* <Sidebar2 activeTab={activeTab} setActiveTab={setActiveTab} /> */}
     </div>
   )
 }

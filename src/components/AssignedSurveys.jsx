@@ -4,8 +4,6 @@ import { RxCross1 } from "react-icons/rx";
 import { IoMdMenu } from "react-icons/io";
 
 const Sidebar = () => {
-  
-  
     const [personnel, setPersonnel] = useState([
       { id: 1, name: 'John Smith', survey: 'Customer Satisfaction', date: '2024-01-15', status: 'Active' },
       { id: 2, name: 'Sarah Johnson', survey: 'Product Feedback', date: '2024-01-14', status: 'In Progress' },

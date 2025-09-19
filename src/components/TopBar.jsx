@@ -6,9 +6,9 @@ const TopBar = ({ setActiveTab }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const menuItems = [
-    { id: 'personnel', label: 'Survey Personnel' },
-    { id: 'assigned', label: 'Assigned Surveys' },
-    { id: 'surveys', label: 'Surveys' }
+    { id: 'Users', label: 'Create Users' },
+    { id: 'Questions', label: 'Create Questions' },
+    { id: 'surveys', label: 'Create Survey' },
   ]
   return (
     <div className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-50">

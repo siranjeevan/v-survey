@@ -59,7 +59,7 @@ const SurveyPersonnel = () => {
                   className="rounded-[5px] border-gray-400 p-3 sm:p-4 md:p-5 text-sm sm:text-base"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-xs sm:text-sm font-bold text-black mb-2">SURVEY</label>
                 <select
                   value={formData.survey}
@@ -72,7 +72,7 @@ const SurveyPersonnel = () => {
                     <option key={survey} value={survey}>{survey}</option>
                   ))}
                 </select>
-              </div>
+              </div> */}
               <Button 
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-700 to-purple-700 hover:from-blue-600 hover:to-purple-700 p-4 sm:p-5 md:p-6 text-sm sm:text-base"

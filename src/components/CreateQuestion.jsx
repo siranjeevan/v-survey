@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Sidebar from "./AssignedSurveys"
-import CreateSurveyModal from "./CreateSurveyModal"
-import PersonnelSelectionModal from "./PersonnelSelectionModal"
+// import CreateSurveyModal from "./unwanted/CreateSurveyModal"
+// import PersonnelSelectionModal from "./PersonnelSelectionModal"
 
 const Surveys = () => {
   const [surveyName, setSurveyName] = useState('')
@@ -142,7 +142,7 @@ const Surveys = () => {
         </div>
       </div>
 
-      <label className="text-xs sm:text-sm font-bold text-black mb-2">SURVEY NAME</label>
+      {/* <label className="text-xs sm:text-sm font-bold text-black mb-2">SURVEY NAME</label>
       <div className="flex flex-row">
         <select
           className="w-60 p-3 sm:p-4 md:p-2 border rounded-l-sm text-sm sm:text-base border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
@@ -158,9 +158,9 @@ const Surveys = () => {
         <div className="bg-black w-35 text-[15px] p-2 rounded-r-sm flex justify-center text-white">
           <button onClick={() => setShowCreateModal(true)}>CreateSurvey</button>
         </div>
-      </div>
+      </div> */}
 
-      <div className="w-full h-full bg-white shadow-2xl p-7 mt-5">
+      <div className="w-full h-full bg-white shadow-2xl p-7 -mt-5">
         <label className="block text-xs sm:text-[12px] font-bold text-black mb-2">QUESTION</label>
         <Input
           type="text"
@@ -217,24 +217,24 @@ const Surveys = () => {
       <div className="mt-5">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Available Questions</h2>
-          <Button 
+          {/* <Button 
             onClick={handleServeQuestions}
             disabled={selectedQuestions.length === 0}
             className="bg-black text-white"
           >
             Serve Selected Questions ({selectedQuestions.length})
-          </Button>
+          </Button> */}
         </div>
         
         {questions.map((question) => (
           <div key={question.id} className="bg-white shadow-md p-4 mb-4 rounded">
             <div className="flex items-center">
-              <input
+              {/* <input
                 type="checkbox"
                 checked={selectedQuestions.includes(question.id)}
                 onChange={() => toggleQuestionSelection(question.id)}
                 className="mr-4"
-              />
+              /> */}
               <div>
                 <p className="font-medium">{question.text}</p>
                 <p className="text-sm text-gray-500">{question.type}</p>
@@ -257,18 +257,18 @@ const Surveys = () => {
         <Sidebar />
       </div>
 
-      <CreateSurveyModal 
+      {/* <CreateSurveyModal 
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreateSurvey={createSurvey}
-      />
+      /> */}
 
-      <PersonnelSelectionModal
+      {/* <PersonnelSelectionModal
         isOpen={showPersonnelModal}
         onClose={() => setShowPersonnelModal(false)}
         onAssign={handleAssignSurvey}
         selectedQuestions={selectedQuestions}
-      />
+      /> */}
     </div>
   )
 }
