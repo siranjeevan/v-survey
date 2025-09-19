@@ -11,13 +11,10 @@ const SurveyPersonnel = () => {
     survey: ''
   })
 
-  const [personnel, setPersonnel] = useState([])
-
   const surveys = ['Customer Satisfaction', 'Product Feedback', 'Market Research', 'Employee Survey']
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Handle form submission logic here
     console.log('Personnel created:', formData)
     setFormData({ fullName: '', email: '', survey: '' })
   }
@@ -59,20 +56,6 @@ const SurveyPersonnel = () => {
                   className="rounded-[5px] border-gray-400 p-3 sm:p-4 md:p-5 text-sm sm:text-base"
                 />
               </div>
-              {/* <div>
-                <label className="block text-xs sm:text-sm font-bold text-black mb-2">SURVEY</label>
-                <select
-                  value={formData.survey}
-                  onChange={(e) => setFormData({...formData, survey: e.target.value})}
-                  className="w-full p-3 sm:p-4 md:p-3 border text-sm sm:text-base rounded-[5px] border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
-                  required
-                >
-                  <option>Select survey to assign</option>
-                  {surveys.map((survey) => (
-                    <option key={survey} value={survey}>{survey}</option>
-                  ))}
-                </select>
-              </div> */}
               <Button 
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-700 to-purple-700 hover:from-blue-600 hover:to-purple-700 p-4 sm:p-5 md:p-6 text-sm sm:text-base"

@@ -1,13 +1,9 @@
-import { useState, useEffect } from "react"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Sidebar from "./AssignedSurveys"
-// import CreateSurveyModal from "./unwanted/CreateSurveyModal"
-// import PersonnelSelectionModal from "./PersonnelSelectionModal"
 
 const Surveys = () => {
-  const [surveyName, setSurveyName] = useState('')
   const [questionText, setQuestionText] = useState('')
   const [responseType, setResponseType] = useState('')
   const [questions, setQuestions] = useState([
@@ -64,10 +60,7 @@ const Surveys = () => {
       type: "Text response"
     }
   ])
-  const [selectedQuestions, setSelectedQuestions] = useState([])
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([''])
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showPersonnelModal, setShowPersonnelModal] = useState(false)
   
   const [activeSurveys, setActiveSurveys] = useState([
     { id: 1, name: 'Customer Satisfaction Survey', date: '2024-01-15' },
@@ -104,35 +97,6 @@ const Surveys = () => {
     setMultipleChoiceOptions([...multipleChoiceOptions, ''])
   }
 
-  const toggleQuestionSelection = (questionId) => {
-    setSelectedQuestions(prev => 
-      prev.includes(questionId) 
-        ? prev.filter(id => id !== questionId)
-        : [...prev, questionId]
-    )
-  }
-
-  const createSurvey = (name) => {
-    const newSurvey = {
-      id: activeSurveys.length + 1,
-      name: name,
-      date: new Date().toISOString().split('T')[0]
-    }
-    setActiveSurveys([...activeSurveys, newSurvey])
-  }
-
-  const handleServeQuestions = () => {
-    if (selectedQuestions.length > 0) {
-      setShowPersonnelModal(true)
-    }
-  }
-
-  const handleAssignSurvey = (questions, personnel) => {
-    console.log('Assigning questions:', questions, 'to personnel:', personnel)
-    setShowPersonnelModal(false)
-    setSelectedQuestions([])
-  }
-
   return (
     <div className="w-170 flex flex-col xl:flex-col mt-4 sm:mt-8 md:mt-12 lg:mt-16 px-2 sm:px-4 md:px-15">
       <div className="flex-1">
@@ -141,25 +105,6 @@ const Surveys = () => {
           <h1 className="text-sm sm:text-base md:text-lg lg:text-x text-gray-400 font-extralight p-2">Manage and create questionnaires</h1>
         </div>
       </div>
-
-      {/* <label className="text-xs sm:text-sm font-bold text-black mb-2">SURVEY NAME</label>
-      <div className="flex flex-row">
-        <select
-          className="w-60 p-3 sm:p-4 md:p-2 border rounded-l-sm text-sm sm:text-base border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
-          required
-          value={surveyName}
-          onChange={(e) => setSurveyName(e.target.value)}
-        >
-          <option>Select The Survey</option>
-          {responseTypes.map((survey, index) => (
-            <option key={index}>{survey}</option>
-          ))}
-        </select>
-        <div className="bg-black w-35 text-[15px] p-2 rounded-r-sm flex justify-center text-white">
-          <button onClick={() => setShowCreateModal(true)}>CreateSurvey</button>
-        </div>
-      </div> */}
-
       <div className="w-full h-full bg-white shadow-2xl p-7 -mt-5">
         <label className="block text-xs sm:text-[12px] font-bold text-black mb-2">QUESTION</label>
         <Input
@@ -217,24 +162,11 @@ const Surveys = () => {
       <div className="mt-5">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Available Questions</h2>
-          {/* <Button 
-            onClick={handleServeQuestions}
-            disabled={selectedQuestions.length === 0}
-            className="bg-black text-white"
-          >
-            Serve Selected Questions ({selectedQuestions.length})
-          </Button> */}
         </div>
         
         {questions.map((question) => (
           <div key={question.id} className="bg-white shadow-md p-4 mb-4 rounded">
             <div className="flex items-center">
-              {/* <input
-                type="checkbox"
-                checked={selectedQuestions.includes(question.id)}
-                onChange={() => toggleQuestionSelection(question.id)}
-                className="mr-4"
-              /> */}
               <div>
                 <p className="font-medium">{question.text}</p>
                 <p className="text-sm text-gray-500">{question.type}</p>
@@ -256,19 +188,6 @@ const Surveys = () => {
       <div className="w-full xl:w-80 2xl:w-96">
         <Sidebar />
       </div>
-
-      {/* <CreateSurveyModal 
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreateSurvey={createSurvey}
-      /> */}
-
-      {/* <PersonnelSelectionModal
-        isOpen={showPersonnelModal}
-        onClose={() => setShowPersonnelModal(false)}
-        onAssign={handleAssignSurvey}
-        selectedQuestions={selectedQuestions}
-      /> */}
     </div>
   )
 }

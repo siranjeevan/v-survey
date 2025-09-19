@@ -2,12 +2,9 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Sidebar from "./AssignedSurveys"
-// import CreateSurveyModal from "./unwanted/CreateSurveyModal"
-// import PersonnelSelectionModal from "./unwanted/PersonnelSelectionModal"
 
 
 const Surveys = () => {
-  const [surveyName, setSurveyName] = useState('')
   const [questions, setQuestions] = useState([
     {
       id: 1,
@@ -252,18 +249,6 @@ const Surveys = () => {
           </div>
         </div>
       )}
-
-      {/* <PersonnelSelectionModal
-        isOpen={showPersonnelModal}
-        onClose={() => setShowPersonnelModal(false)}
-        onAssign={(questions, personnel) => {
-          console.log('Assigning surveys:', selectedSurveys, 'to personnel:', personnel)
-          alert(`Assigned ${selectedSurveys.length} surveys to ${personnel.length} personnel`)
-          setShowPersonnelModal(false)
-          setSelectedSurveys([])
-        }}
-        selectedQuestions={selectedSurveys}
-      /> */}
     </div>
   )
 }
