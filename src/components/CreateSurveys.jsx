@@ -114,10 +114,10 @@ const Surveys = () => {
         <input
             type="text"
             placeholder="Type your survey name here"
-            className="bg-transparent text-[20px] border-none outline-none placeholder-gray-400 focus:placeholder-transparent text-base px-2 py-2 w-100"
+            className="bg-transparent text-[20px] border-none outline-none placeholder-gray-400 focus:placeholder-transparent text-base px-2 py-1 w-100"
         />
-        <div className="bg-black w-35 text-[15px] p-2 rounded-[15px] flex justify-center text-white ">
-          <button onClick={() => setShowCreateModal(true)}>+ CreateSurvey</button>
+        <div className="bg-black w-35 text-[15px] p-2 rounded-[10px] flex justify-center text-white ">
+          <button onClick={() => setShowCreateModal(true)}>+ Create Survey</button>
         </div>
       </div>
       <div className="flex justify-between items-center mb-4  mt-5">

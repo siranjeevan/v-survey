@@ -25,7 +25,7 @@ const TopBar = ({ setActiveTab }) => {
             </div>
           </button>
           <h1 className="text-gray-800">
-            <span className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium" >Survey</span> 
+            <span className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium" >V-Survey</span> 
             <span className="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-extralight ml-1">Portal</span>
           </h1>
         </div>
