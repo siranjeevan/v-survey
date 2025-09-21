@@ -47,7 +47,7 @@ function App() {
         <>
           <TopBar setActiveTab={setActiveTab} />
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-          <main className="lg:ml-64 pt-16 sm:pt-18 md:pt-20 p-2 sm:p-4 md:p-6">
+          <main className="lg:ml-64 pt-16 sm:pt-20 md:pt-24 p-4 sm:p-6 md:p-8 mt-10">
             {renderContent()}
           </main>
         </>
