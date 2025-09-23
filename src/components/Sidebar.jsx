@@ -4,6 +4,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: "Questions", label: "Create Questions" },
     { id: "surveys", label: "Create Survey" },
     { id: "assignuser", label: "Assign User" },
+    { id: "superadmin", label: "Super Admin" },
   ];
 
   return (

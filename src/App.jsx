@@ -7,6 +7,7 @@ import CreateSurvey from './components/CreateSurveys'
 import SetPassword from './components/SetPassword'
 import { supabase } from './lib/supabaseClient'
 import AssignUser from "./components/AssignUser";
+import SuperAdminDashboard from "./components/SuperAdminDashboard";
 
 
 function App() {
@@ -51,6 +52,8 @@ function App() {
         return <CreateSurvey />;
       case "assignuser":
         return <AssignUser />;
+      case "superadmin":
+        return <SuperAdminDashboard />
       default:
         return <SurveyPersonnel />;
     }

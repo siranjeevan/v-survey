@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
 const AssignUser = () => {
-  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState([]);
   const [selectedSurveys, setSelectedSurveys] = useState([]);
-  const [surveyDropdownValue, setSurveyDropdownValue] = useState("");
   const [userAssignments, setUserAssignments] = useState({});
+  const [userSearch, setUserSearch] = useState("");
+  const [surveySearch, setSurveySearch] = useState("");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showSurveyDropdown, setShowSurveyDropdown] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState("");
 
   const users = [
     { id: "john.doe", name: "John Doe" },
@@ -25,12 +28,45 @@ const AssignUser = () => {
     { id: 5, name: "Brand Awareness Survey" },
   ];
 
-  const handleSurveySelection = (e) => {
-    const surveyId = parseInt(e.target.value);
-    if (surveyId && !selectedSurveys.includes(surveyId)) {
+  useEffect(() => {
+    const saved = localStorage.getItem('userAssignments');
+    if (saved) {
+      setUserAssignments(JSON.parse(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('userAssignments', JSON.stringify(userAssignments));
+  }, [userAssignments]);
+
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(userSearch.toLowerCase()) &&
+    !selectedUser.includes(user.id)
+  );
+
+  const filteredSurveys = surveys.filter(survey => 
+    survey.name.toLowerCase().includes(surveySearch.toLowerCase()) &&
+    !selectedSurveys.includes(survey.id)
+  );
+
+  const handleSurveySelection = (surveyId) => {
+    if (!selectedSurveys.includes(surveyId)) {
       setSelectedSurveys([...selectedSurveys, surveyId]);
     }
-    setSurveyDropdownValue("");
+    setSurveySearch("");
+    setShowSurveyDropdown(false);
+  };
+
+  const handleUserSelection = (userId) => {
+    if (!selectedUser.includes(userId)) {
+      setSelectedUser([...selectedUser, userId]);
+    }
+    setUserSearch("");
+    setShowUserDropdown(false);
+  };
+
+  const removeUserSelection = (userId) => {
+    setSelectedUser(selectedUser.filter((id) => id !== userId));
   };
 
   const removeSurveySelection = (surveyId) => {
@@ -38,28 +74,36 @@ const AssignUser = () => {
   };
 
   const assignSurveys = () => {
-    if (selectedUser && selectedSurveys.length > 0) {
+    if (selectedUser.length > 0 && selectedSurveys.length > 0) {
       const newAssignments = selectedSurveys.map((surveyId) => ({
         ...surveys.find((s) => s.id === surveyId),
         active: true
       }));
 
-      setUserAssignments((prev) => ({
-        ...prev,
-        [selectedUser]: [
-          ...(prev[selectedUser] || []),
+      const updatedAssignments = { ...userAssignments };
+      
+      selectedUser.forEach(userId => {
+        updatedAssignments[userId] = [
+          ...(updatedAssignments[userId] || []),
           ...newAssignments.filter(
             (survey) =>
-              !(prev[selectedUser] || []).some(
+              !(updatedAssignments[userId] || []).some(
                 (existing) => existing.id === survey.id
               )
           ),
-        ],
-      }));
+        ];
+      });
 
-      setSelectedUser("");
+      setUserAssignments(updatedAssignments);
+
+      const userNames = selectedUser.map(id => users.find(u => u.id === id)?.name).join(', ');
+      setConfirmationMessage(`Successfully assigned ${selectedSurveys.length} survey${selectedSurveys.length > 1 ? 's' : ''} to ${userNames}`);
+      setTimeout(() => setConfirmationMessage(""), 3000);
+
+      setSelectedUser([]);
       setSelectedSurveys([]);
-      setSurveyDropdownValue("");
+      setUserSearch("");
+      setSurveySearch("");
     }
   };
 
@@ -77,7 +121,7 @@ const AssignUser = () => {
 
 
   return (
-    <div className="w-170 flex flex-col xl:flex-col mt-4 sm:mt-8 md:mt-12 lg:mt-16 px-2 sm:px-4 md:px-15">
+    <div className="w-full xl:max-w-[680px] lg:max-w-[370px] flex flex-col xl:flex-col mt-2 sm:mt-2 md:mt-2 lg:mt-2 px-2 sm:px-2 md:px-6">
       <div className="flex-1">
         <div className="flex flex-col mb-4 sm:mb-6 md:mb-8">
           <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium">
@@ -95,42 +139,104 @@ const AssignUser = () => {
 
       {/* Assignment Form */}
       <div className="space-y-4 mb-8">
-        {/* User Dropdown */}
-        <div>
+        {/* User Multi-Select */}
+        <div className="relative">
           <label className="block text-xs sm:text-sm font-bold text-black mb-2">
             SELECT USER
           </label>
-          <Select
-            value={selectedUser}
-            onChange={(e) => setSelectedUser(e.target.value)}
-            className="w-full p-3 sm:p-4 md:p-2 border rounded-sm text-sm sm:text-base border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
-          >
-            <option value="">Choose a user...</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </Select>
+          <input
+            type="text"
+            value={userSearch}
+            onChange={(e) => {
+              setUserSearch(e.target.value);
+              setShowUserDropdown(true);
+            }}
+            onFocus={() => setShowUserDropdown(true)}
+            onBlur={() => setTimeout(() => setShowUserDropdown(false), 200)}
+            placeholder="Search and select users..."
+            className="w-full p-3 sm:p-4 md:p-2 border rounded-sm text-sm sm:text-base border-gray-400 focus:outline-none focus:ring-1 focus:ring-black mb-2"
+          />
+          {showUserDropdown && filteredUsers.length > 0 && (
+            <div className="absolute z-10 w-full bg-white border border-gray-400 rounded-sm mt-1 max-h-40 overflow-y-auto">
+              {filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  onClick={() => handleUserSelection(user.id)}
+                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedUser.includes ? selectedUser.includes(user.id) : selectedUser === user.id}
+                    readOnly
+                    className="mr-2"
+                  />
+                  {user.name}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Selected Users Display */}
+          {((Array.isArray(selectedUser) && selectedUser.length > 0) || (!Array.isArray(selectedUser) && selectedUser)) && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {(Array.isArray(selectedUser) ? selectedUser : [selectedUser]).map((userId) => {
+                const user = users.find((u) => u.id === userId);
+                return (
+                  <Badge
+                    key={userId}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    {user?.name}
+                    <button
+                      onClick={() => removeUserSelection(userId)}
+                      className="ml-1 text-xs hover:text-red-500"
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Survey Multi-Select */}
-        <div>
+        <div className="relative">
           <label className="block text-xs sm:text-sm font-bold text-black mb-2">
             SELECT SURVEYS
           </label>
-          <Select
-            value={surveyDropdownValue}
-            onChange={handleSurveySelection}
+          <input
+            type="text"
+            value={surveySearch}
+            onChange={(e) => {
+              setSurveySearch(e.target.value);
+              setShowSurveyDropdown(true);
+            }}
+            onFocus={() => setShowSurveyDropdown(true)}
+            onBlur={() => setTimeout(() => setShowSurveyDropdown(false), 200)}
+            placeholder="Search and select surveys..."
             className="w-full p-3 sm:p-4 md:p-2 border rounded-sm text-sm sm:text-base border-gray-400 focus:outline-none focus:ring-1 focus:ring-black mb-2"
-          >
-            <option value="">Add a survey...</option>
-            {surveys.map((survey) => (
-              <option key={survey.id} value={survey.id}>
-                {survey.name}
-              </option>
-            ))}
-          </Select>
+          />
+          {showSurveyDropdown && filteredSurveys.length > 0 && (
+            <div className="absolute z-10 w-full bg-white border border-gray-400 rounded-sm mt-1 max-h-40 overflow-y-auto">
+              {filteredSurveys.map((survey) => (
+                <div
+                  key={survey.id}
+                  onClick={() => handleSurveySelection(survey.id)}
+                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center"
+                >
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    readOnly
+                    className="mr-2"
+                  />
+                  {survey.name}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Selected Surveys Display */}
           {selectedSurveys.length > 0 && (
@@ -157,11 +263,18 @@ const AssignUser = () => {
           )}
         </div>
 
+        {/* Confirmation Message */}
+        {confirmationMessage && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-sm text-sm">
+            {confirmationMessage}
+          </div>
+        )}
+
         {/* Assign Button */}
         <div className="bg-black w-full text-[15px] p-2 rounded-sm flex justify-center text-white">
           <button
             onClick={assignSurveys}
-            disabled={!selectedUser || selectedSurveys.length === 0}
+            disabled={selectedUser.length === 0 || selectedSurveys.length === 0}
             className="disabled:opacity-50 w-full"
           >
             Assign Survey{selectedSurveys.length > 1 ? "s" : ""}
@@ -170,7 +283,7 @@ const AssignUser = () => {
       </div>
       
       {/* Right Sidebar - Assigned Surveys Panel */}
-      <div className="lg:w-96 lg:shadow-lg lg:h-screen lg:fixed lg:right-0 lg:top-0 lg:z-40 lg:bg-white lg:overflow-y-auto w-full bg-transparent">
+      <div className="lg:w-86 lg:shadow-lg lg:h-screen lg:fixed lg:right-0 lg:top-0 lg:z-40 lg:bg-white lg:overflow-y-auto w-full bg-transparent">
         <div className="lg:p-6 lg:mt-20 p-4 space-y-4">
           <div className="lg:flex lg:items-center lg:justify-center hidden">
             <CardTitle className="text-xl text-black font-semibold flex justify-center">

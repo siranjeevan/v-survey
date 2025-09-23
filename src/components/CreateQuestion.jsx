@@ -1,16 +1,21 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { Edit3, X } from "@/components/ui/icons"
 import Sidebar from "./AssignedSurveys"
 
 const Surveys = () => {
   const [questionText, setQuestionText] = useState('')
   const [responseType, setResponseType] = useState('')
+  const [ratingScale, setRatingScale] = useState('1-5')
   const [questions, setQuestions] = useState([
     {
       id: 1,
       text: "How satisfied are you with our product?",
-      type: "Rating scale"
+      type: "Rating scale (1-5)"
     },
     {
       id: 2, 
@@ -41,7 +46,7 @@ const Surveys = () => {
     {
       id: 7,
       text: "How would you rate our customer support?",
-      type: "Rating scale"
+      type: "Rating scale (1-10)"
     },
     {
       id: 8,
@@ -62,6 +67,15 @@ const Surveys = () => {
   ])
   const [multipleChoiceOptions, setMultipleChoiceOptions] = useState([''])
   
+  // Edit modal states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingQuestion, setEditingQuestion] = useState(null)
+  const [editQuestionText, setEditQuestionText] = useState('')
+  const [editResponseType, setEditResponseType] = useState('')
+  const [editRatingScale, setEditRatingScale] = useState('1-5')
+  const [editOptions, setEditOptions] = useState([''])
+  const [showResponseTypeDropdown, setShowResponseTypeDropdown] = useState(false)
+  
   const [activeSurveys, setActiveSurveys] = useState([
     { id: 1, name: 'Customer Satisfaction Survey', date: '2024-01-15' },
     { id: 2, name: 'Product Feedback Survey', date: '2024-01-14' },
@@ -74,16 +88,78 @@ const Surveys = () => {
 
   const addQuestion = () => {
     if (questionText && responseType) {
+      const finalType = responseType === 'Rating scale' ? `Rating scale (${ratingScale})` : responseType
       const newQuestion = {
-        id: questions.length + 1,
+        id: Date.now(),
         text: questionText,
-        type: responseType,
-        options: responseType === 'Multiple choice' ? multipleChoiceOptions : []
+        type: finalType,
+        options: responseType === 'Multiple choice' ? multipleChoiceOptions.filter(opt => opt.trim()) : []
       }
-      setQuestions([...questions, newQuestion])
+      setQuestions([newQuestion, ...questions])
       setQuestionText('')
       setResponseType('')
+      setRatingScale('1-5')
       setMultipleChoiceOptions([''])
+    }
+  }
+
+  const openEditModal = (question) => {
+    setEditingQuestion(question)
+    setEditQuestionText(question.text)
+    
+    if (question.type.includes('Rating scale')) {
+      setEditResponseType('Rating scale')
+      setEditRatingScale(question.type.includes('1-10') ? '1-10' : '1-5')
+    } else {
+      setEditResponseType(question.type)
+      setEditRatingScale('1-5')
+    }
+    
+    setEditOptions(question.options && question.options.length > 0 ? [...question.options] : [''])
+    setIsEditModalOpen(true)
+  }
+
+  const saveEditQuestion = () => {
+    if (editQuestionText && editResponseType) {
+      const finalType = editResponseType === 'Rating scale' ? `Rating scale (${editRatingScale})` : editResponseType
+      const updatedQuestions = questions.map(q => 
+        q.id === editingQuestion.id 
+          ? {
+              ...q,
+              text: editQuestionText,
+              type: finalType,
+              options: editResponseType === 'Multiple choice' ? editOptions.filter(opt => opt.trim()) : []
+            }
+          : q
+      )
+      setQuestions(updatedQuestions)
+      closeEditModal()
+    }
+  }
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false)
+    setEditingQuestion(null)
+    setEditQuestionText('')
+    setEditResponseType('')
+    setEditRatingScale('1-5')
+    setEditOptions([''])
+    setShowResponseTypeDropdown(false)
+  }
+
+  const handleEditOptionChange = (index, value) => {
+    const newOptions = [...editOptions]
+    newOptions[index] = value
+    setEditOptions(newOptions)
+  }
+
+  const addEditOption = () => {
+    setEditOptions([...editOptions, ''])
+  }
+
+  const removeEditOption = (index) => {
+    if (editOptions.length > 1) {
+      setEditOptions(editOptions.filter((_, i) => i !== index))
     }
   }
 
@@ -95,6 +171,12 @@ const Surveys = () => {
 
   const addOption = () => {
     setMultipleChoiceOptions([...multipleChoiceOptions, ''])
+  }
+
+  const removeOption = (index) => {
+    if (multipleChoiceOptions.length > 1) {
+      setMultipleChoiceOptions(multipleChoiceOptions.filter((_, i) => i !== index))
+    }
   }
 
   return (
@@ -129,6 +211,17 @@ const Surveys = () => {
               ))}
             </select>
 
+            {responseType === 'Rating scale' && (
+              <select
+                className="p-3 border text-sm rounded-[5px] border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
+                value={ratingScale}
+                onChange={(e) => setRatingScale(e.target.value)}
+              >
+                <option value="1-5">1-5 Scale</option>
+                <option value="1-10">1-10 Scale</option>
+              </select>
+            )}
+
             <button 
               onClick={addQuestion}
               className="bg-black text-white px-4 py-3 rounded-[8px] text-sm whitespace-nowrap"
@@ -140,23 +233,33 @@ const Surveys = () => {
           {responseType === 'Multiple choice' && (
             <div className="mt-4">
               <label className="block text-xs md:text-sm font-bold text-black mb-2">MULTIPLE CHOICE OPTIONS</label>
-              {multipleChoiceOptions.map((option, index) => (
-                <div key={index} className="flex items-center mb-2 gap-2">
-                  <input
-                    type="checkbox"
-                    className="flex-shrink-0"
-                    disabled
-                  />
-                  <Input
-                    type="text"
-                    placeholder={`Option ${index + 1}`}
-                    value={option}
-                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                    className="flex-1 rounded-[5px] border-gray-400 p-2 text-sm"
-                  />
-                </div>
-              ))}
-              <Button onClick={addOption} className="mt-2 text-sm">+ Add Option</Button>
+              <div className="space-y-2">
+                {multipleChoiceOptions.map((option, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input type="checkbox" className="flex-shrink-0" disabled />
+                    <Input
+                      type="text"
+                      placeholder={`Option ${index + 1}`}
+                      value={option}
+                      onChange={(e) => handleOptionChange(index, e.target.value)}
+                      className="flex-1 rounded-[5px] border-gray-400 p-2 text-sm"
+                    />
+                    {multipleChoiceOptions.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeOption(index)}
+                        className="p-1 h-8 w-8 text-red-500 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button variant="outline" onClick={addOption} className="text-sm">
+                  + Add Option
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -166,32 +269,159 @@ const Surveys = () => {
             <h2 className="text-base md:text-lg lg:text-xl font-semibold">Available Questions</h2>
           </div>
           
-          {questions.map((question) => (
-            <div key={question.id} className="bg-white shadow-md p-3 md:p-4 mb-3 md:mb-4 rounded">
-              <div className="flex items-start">
-                <div className="flex-1">
-                  <p className="font-medium text-sm break-words">{question.text}</p>
-                  <p className="text-xs text-gray-500 mt-1">{question.type}</p>
-                  {question.options && question.options.length > 0 && (
-                    <div className="ml-4 mt-2">
-                      {question.options.map((option, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <input type="checkbox" disabled className="flex-shrink-0" />
-                          <span className="text-xs break-words">{option}</span>
-                        </div>
-                      ))}
+          <div className="max-h-96 overflow-y-auto space-y-3">
+            {questions.map((question) => (
+              <div key={question.id} className="bg-white shadow-md p-3 md:p-4 rounded border border-gray-100">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 pr-3">
+                    <p className="font-medium text-sm break-words">{question.text}</p>
+                    <p className="text-xs text-gray-500 mt-1">{question.type}</p>
+                    {question.options && question.options.length > 0 && (
+                      <div className="ml-4 mt-2 space-y-1">
+                        {question.options.map((option, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <input type="checkbox" disabled className="flex-shrink-0" />
+                            <span className="text-xs break-words">{option}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openEditModal(question)}
+                    className="p-2 h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  >
+                    <Edit3 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Edit Modal */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="w-full max-w-[95vw] sm:max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between">
+                Edit Question
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={closeEditModal}
+                  className="p-1 h-6 w-6"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs font-bold text-black mb-2">QUESTION</Label>
+                <Input
+                  value={editQuestionText}
+                  onChange={(e) => setEditQuestionText(e.target.value)}
+                  placeholder="Enter your survey question here"
+                  className="rounded-[5px] border-gray-400 p-3 text-sm"
+                />
+              </div>
+              
+              <div>
+                <Label className="text-xs font-bold text-black mb-2">RESPONSE TYPE</Label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {!showResponseTypeDropdown ? (
+                    <div 
+                      onClick={() => setShowResponseTypeDropdown(true)}
+                      className="flex-1 p-3 border text-sm rounded-[5px] border-gray-400 bg-white cursor-pointer hover:bg-gray-50"
+                    >
+                      {editResponseType || 'Select response type'}
                     </div>
+                  ) : (
+                    <select
+                      className="flex-1 p-3 border text-sm rounded-[5px] border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
+                      value={editResponseType}
+                      onChange={(e) => {
+                        setEditResponseType(e.target.value)
+                        setShowResponseTypeDropdown(false)
+                      }}
+                      onBlur={() => setShowResponseTypeDropdown(false)}
+                      autoFocus
+                    >
+                      <option value="">Select response type</option>
+                      {responseTypes.map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  )}
+                  
+                  {editResponseType === 'Rating scale' && (
+                    <select
+                      value={editRatingScale}
+                      onChange={(e) => setEditRatingScale(e.target.value)}
+                      className="w-full sm:w-32 p-3 border text-sm rounded-[5px] border-gray-400 focus:outline-none focus:ring-1 focus:ring-black"
+                    >
+                      <option value="1-5">1-5 Scale</option>
+                      <option value="1-10">1-10 Scale</option>
+                    </select>
                   )}
                 </div>
               </div>
+
+              {editResponseType === 'Multiple choice' && (
+                <div>
+                  <Label className="text-xs font-bold text-black mb-2">OPTIONS</Label>
+                  <div className="space-y-2">
+                    {editOptions.map((option, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <input type="checkbox" disabled className="flex-shrink-0" />
+                        <Input
+                          value={option}
+                          onChange={(e) => handleEditOptionChange(index, e.target.value)}
+                          placeholder={`Option ${index + 1}`}
+                          className="flex-1 rounded-[5px] border-gray-400 p-2 text-sm"
+                        />
+                        {editOptions.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeEditOption(index)}
+                            className="p-1 h-8 w-8 text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button 
+                      variant="outline" 
+                      onClick={addEditOption}
+                      className="text-sm"
+                    >
+                      + Add Option
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-2 pt-4">
+                <Button onClick={saveEditQuestion} className="flex-1">
+                  Edit Question
+                </Button>
+                <Button variant="outline" onClick={closeEditModal} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
             </div>
-          ))}
-        </div>
+          </DialogContent>
+        </Dialog>
       </div>
       
-      <div className="w-full lg:w-80 lg:flex-shrink-0">
+      {/* <div className="w-full lg:w-80 lg:flex-shrink-0">
         <Sidebar />
-      </div>
+      </div> */}
     </div>
   )
 }
